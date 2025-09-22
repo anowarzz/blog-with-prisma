@@ -26,11 +26,13 @@ const getAllPosts = async ({
   limit = 10,
   search,
   isFeatured,
+  tags,
 }: {
   page?: number;
   limit?: number;
   search?: string;
   isFeatured?: boolean;
+  tags?: string[];
 }): Promise<Post[]> => {
   const skip = (page - 1) * limit;
 
@@ -52,6 +54,7 @@ const getAllPosts = async ({
           },
         ],
       },
+      tags && tags?.length > 0 && { tags: { hasEvery: tags } },
       typeof isFeatured === "boolean" && { isFeatured },
     ].filter(Boolean),
   };
