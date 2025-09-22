@@ -24,7 +24,21 @@ const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
+// get user by id
+const getUserById = async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  try {
+    const result = await UserService.getUserById(id);
+    
+    res.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export const UserController = {
   createUser,
   getAllUsers,
+  getUserById,
 };
