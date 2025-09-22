@@ -2,6 +2,7 @@ import {} from "@prisma/client";
 import { prisma } from "../../config/db";
 import { Post, Prisma } from "../../generated/prisma";
 
+// create post
 const createPost = async (payload: Prisma.PostCreateInput): Promise<Post> => {
   const result = await prisma.post.create({
     data: payload,
@@ -19,8 +20,38 @@ const createPost = async (payload: Prisma.PostCreateInput): Promise<Post> => {
   return result;
 };
 
-const getAllPosts = async (): Promise<Post[]> => {
+// get all posts
+const getAllPosts = async ({
+  page,
+  limit,
+  search,
+}: {
+  page: number;
+  limit: number;
+  search: string;
+}): Promise<Post[]> => {
+  const skip = (page - 1) * limit;
+
   const result = await prisma.post.findMany({
+    skip,
+    take: limit,
+    where: {
+      OR: [
+        {
+          title: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          content: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+      ],
+    },
+
     include: {
       author: {
         select: {
@@ -38,6 +69,7 @@ const getAllPosts = async (): Promise<Post[]> => {
   return result;
 };
 
+// get single post by id
 const getPostById = async (id: number): Promise<Post | null> => {
   const result = await prisma.post.findUnique({
     where: { id },
@@ -55,6 +87,7 @@ const getPostById = async (id: number): Promise<Post | null> => {
   return result;
 };
 
+// update post
 const updatePost = async (
   id: number,
   payload: Prisma.PostUpdateInput
@@ -76,6 +109,7 @@ const updatePost = async (
   return result;
 };
 
+// delete post
 const deletePost = async (id: number): Promise<Post> => {
   const result = await prisma.post.delete({
     where: { id },
