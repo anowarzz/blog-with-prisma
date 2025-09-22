@@ -27,7 +27,7 @@ model User {
   password   String?
   role       Role       @default(USER)
   phone      String
-  picture    String
+  picture    String?
   status     UserStatus @default(ACTIVE)
   isVerified Boolean    @default(false)
   createdAt  DateTime   @default(now())

@@ -1,6 +1,7 @@
 import compression from "compression";
 import cors from "cors";
 import express from "express";
+import { UserRoutes } from "./modules/user/user.route";
 
 const app = express();
 
@@ -16,11 +17,13 @@ app.use(
   })
 );
 
+// Routes
+app.use("/api/v1/user", UserRoutes);
+
 // Default route for testing
 app.get("/", (_req, res) => {
   res.send("API is running");
 });
-
 
 // 404 Handler
 app.use((req, res, next) => {
