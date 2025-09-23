@@ -5,7 +5,19 @@ import { AuthService } from "./auth.service";
 const loginWithEmailAndPassword = async (req: Request, res: Response) => {
   try {
     const result = await AuthService.loginWithEmailAndPassword(req.body);
-    console.log("console from controller");
+
+    res.status(201).json(result);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// auth with google
+const authWithGoogle = async (req: Request, res: Response) => {
+  try {
+    const result = await AuthService.authWithGoogle(req.body);
+
     res.status(201).json(result);
   } catch (error) {
     console.log(error);
@@ -15,4 +27,5 @@ const loginWithEmailAndPassword = async (req: Request, res: Response) => {
 
 export const AuthController = {
   loginWithEmailAndPassword,
+  authWithGoogle,
 };
