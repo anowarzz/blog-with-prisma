@@ -33,7 +33,15 @@ const getAllPosts = async ({
   search?: string;
   isFeatured?: boolean;
   tags?: string[];
-}): Promise<Post[]> => {
+}): Promise<{
+  data: Post[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}> => {
   const skip = (page - 1) * limit;
 
   const where: any = {
@@ -63,28 +71,10 @@ const getAllPosts = async ({
     skip,
     take: limit,
     where,
-
-    include: {
-      author: {
-        select: {
-          id: true,
-          email: true,
-          name: true,
-        },
-      },
-    },
     orderBy: {
       createdAt: "desc",
     },
-  });
 
-  return result;
-};
-
-// get single post by id
-const getPostById = async (id: number): Promise<Post | null> => {
-  const result = await prisma.post.findUnique({
-    where: { id },
     include: {
       author: {
         select: {
@@ -96,7 +86,45 @@ const getPostById = async (id: number): Promise<Post | null> => {
     },
   });
 
-  return result;
+  const total = await prisma.post.count({ where });
+
+  return {
+    data: result,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
+
+// get single post by id
+const getPostById = async (id: number) => {
+  return await prisma.$transaction(async (tx) => {
+    await tx.post.update({
+      where: { id },
+      data: {
+        views: {
+          increment: 1,
+        },
+      },
+    });
+
+    return await tx.post.findUnique({
+      where: { id },
+
+      include: {
+        author: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+          },
+        },
+      },
+    });
+  });
 };
 
 // update post
